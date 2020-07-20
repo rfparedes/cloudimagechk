@@ -9,6 +9,13 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
+//Image type
+type Image struct {
+	CreationDate string
+	Name         string
+	ImageID      string
+}
+
 //GetRegions return all AWS regions
 func GetRegions() []string {
 	var regionSlice []string
@@ -31,20 +38,25 @@ func GetRegions() []string {
 }
 
 // GetImages return AWS images according to a filter
-func GetImages(publisher string) {
+func GetImages(publisher string, region string) []Image {
+
+	var (
+		owners     = []*string{aws.String(publisher)}
+		imageSlice []Image
+	)
 	// Load session from shared config
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
+		Config:            aws.Config{Region: aws.String(region)},
 	}))
 	// Create a new EC2 client
 	svc := ec2.New(sess)
 	input := &ec2.DescribeImagesInput{
-		ImageIds: []*string{
-			aws.String("ami-07174570cb87e95c5"),
-		},
+		Owners: owners,
 	}
-
 	resultImages, _ := svc.DescribeImages(input)
-
-	fmt.Println(resultImages)
+	for _, image := range resultImages.Images {
+		imageSlice = append(imageSlice, Image{*image.CreationDate, *image.Name, *image.ImageId})
+	}
+	return imageSlice
 }

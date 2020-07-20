@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	providerPtr := flag.String("provider", "aws", "Cloud Service Provider to use")
+	providerPtr := flag.String("provider", "none", "Cloud Service Provider to use")
 	publisherPtr := flag.String("publisher", "SUSE", "Publisher images to use")
 	providerListPtr := flag.Bool("listproviders", false, "List available providers")
 
@@ -25,5 +25,17 @@ func main() {
 		}
 	}
 
-	aws.GetImages("SUSE")
+	if *providerPtr == "aws" {
+		var (
+			imageInfo  []aws.Image
+			regionInfo []string
+		)
+		regionInfo = aws.GetRegions()
+		for _, reg := range regionInfo {
+			imageInfo = aws.GetImages(*publisherPtr, reg)
+			fmt.Println(imageInfo)
+		}
+
+	}
+
 }
