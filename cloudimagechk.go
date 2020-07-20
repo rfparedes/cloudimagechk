@@ -13,18 +13,13 @@ func main() {
 	providerPtr := flag.String("provider", "none", "Cloud Service Provider to use")
 	publisherPtr := flag.String("publisher", "SUSE", "Publisher images to use")
 	providerListPtr := flag.Bool("listproviders", false, "List available providers")
-
-	_ = providerPtr
-	_ = publisherPtr
-
 	flag.Parse()
-
 	if *providerListPtr == true {
 		for _, v := range utils.GetProviderList() {
 			fmt.Println(v)
 		}
 	}
-
+	// AWS
 	if *providerPtr == "aws" {
 		var (
 			imageInfo  []aws.Image
@@ -35,7 +30,5 @@ func main() {
 			imageInfo = aws.GetImages(*publisherPtr, reg)
 			fmt.Println(imageInfo)
 		}
-
 	}
-
 }
